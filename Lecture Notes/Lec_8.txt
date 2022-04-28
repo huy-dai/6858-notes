@@ -1,0 +1,275 @@
+Securing interfaces: library sandboxing
+=======================================
+
+Goal: sandboxing libraries in large application (e.g., Firefox).
+  Libraries could have security bugs.
+  Want to make sure library bugs don't translate into application vulnerabilities.
+  Might not get meaningful data from library but want to avoid attacks.
+  Need isolation + controlled sharing with the library.
+
+New problem we're seeing in this paper: securing the interface.
+  We already know how to isolate code pretty well.
+    Processes, VMs, WebAssembly.
+    Paper uses WebAssembly, Native Client (predecessor of WebAssembly), and processes.
+  A big focus in this paper is on designing the interface between isolated boxes.
+
+Aside: we're seeing some of the privilege separation ideas in client-side context.
+  So far we've talked about server-side code (Google, OKWS, Firecracker).
+  This paper shows similar ideas being used in client-side code, in a web browser.
+  Although the core ideas are applicable across the board.  
+    Could imagine using RLbox in server-side context too.
+    E.g., sandboxing video codecs on Youtube servers.
+
+Background: web browser isolation.
+  Will talk more about web security after spring break, but can discuss the basics.
+  Typical design: renderer process for each window / tab.
+    Goal is to prevent browser vulnerabilites from compromising underlying OS.
+    Used to be relatively more important when browser was just one of many apps.
+    Nowadays most things run in the browser, not as many non-browser apps that matter.
+    Compromises could perhaps access all user cookies.
+    Any web site could be in any tab as an image, frame, etc.
+  Site isolation.
+    Relatively newer approach in Firefox, Chrome.
+    [[ Ref: https://www.chromium.org/Home/chromium-security/site-isolation/ ]]
+    Process per domain (like google.com).
+    Attacker can still be pretty damaging.
+      Just need to inject an image that renders with buggy library in google.com.
+      E.g., send image email attachment, upload image to Google Maps, Google Photos, etc.
+      Compromised library code can access google.com cookie.
+  Sandboxed media process, in Firefox.
+    [[ Ref: https://wiki.mozilla.org/Security/Sandbox ]]
+    "Gecko Media Plugin."
+    Put media codecs into a (single) separate process.
+    Downside: all media codecs share same process, one compromise can affect other codecs.
+    Doesn't work so well for sandboxing relatively more important libraries.
+    E.g., what if that gzip library runs in same sandbox as compromised video codec?
+      Adversary can cause gzip library to decompress to arbitrary JS output.
+      Cause web page renderer to run arbitrary Javascript code in that page.
+
+Goal: combine existing privilege separation with library sandboxing.
+  Yet another level of privilege separation, within renderer process.
+  Library should take data in, produce rendered version out.
+  Image codecs, video codecs, font libraries, decompression library, etc.
+  Nice fit for privilege separation: fairly clean spec.
+    Accepts arbitrary data, decodes it into some other data format.
+    Almost purely functional.
+    No persistent storage, no dependency between decoding of different files.
+
+How many sandboxes?
+  Creating sandbox still incurs some overhead (1-2 msec).
+  One sandbox for entire renderer: not great because some content is important.
+    E.g., gzip library might decompress Javascript that runs in a page.
+  Paper amortizes cost by grouping by library, content type, and where content came from.
+    <renderer, library, content-origin, content-type>
+
+This level of sandboxing is partly enabled by the existence of WebAssembly.
+  Would be too costly to create more sophisticated sandboxes (like VMs or processes).
+
+Why is the interface such a challenge?
+  To some degree it's always going to be tricky.
+  But to a large degree this problem arises because we're re-purposing existing boundary.
+  Application-library interface was not originally designed to be untrusted.
+  Application needs to worry about what data it might be giving to the library.
+  Application needs to validate data coming from library.
+
+Examples of bugs: section 3.
+
+Not sanitizing data coming from the library (sandbox).
+  Example: library asks to skip N bytes of input data.
+  Existing code likely doesn't check that N is in-bounds (library is trusted).
+  Compromised library in sandbox can ask for N much larger than buffer size.
+    Cause out-of-bounds memory reads or writes in code outside sandbox.
+  Another example: library returns an unexpected error code or flag.
+
+Pointer conversions.
+  Code in application (renderer) and library (sandbox) have different memories.
+  Pointers in one memory are meaningless in another memory.
+  Need to explicitly copy memory contents -- can't just pass existing pointers.
+  What goes wrong?
+    Library code or app code breaks (corrupts memory): pointer is garbage.
+    Library code can trick app code into overwriting arbitrary memory.
+      Line 44 in Figure 1: library returns arbitrary mInfo.err pointer.
+      This code might not have run when testing, so didn't notice..
+    App can inadvertently leak ASLR information to untrusted library in sandbox.
+      Pointer might not be used, so didn't catch in testing, and everything works.
+      But compromised library can look at the pointer and extract ASLR randomness.
+
+Double-fetch bugs.
+  App code accesses the same shared data twice.
+  E.g., shared struct; check if offset is in-bounds, then use that offset.
+    Line 16 followed by line 18.
+  Compromised library can modify value between the two checks: race condition.
+
+Callbacks.
+  Library may need to call back into application: e.g., get more input data.
+  Need to safely grant library access to specific callback functions.
+  Not safe for library to call any function in application.
+  But existing API just passes a 64-bit pointer to specify callback.
+
+Callback arguments.
+  Often library interfaces involve library passing some state back to cb func.
+    E.g., pointer to some app-level data structure.
+  Compromised library can pass arbitrary pointer.
+  May even need to restrict the arguments to those callback functions.
+  E.g., pointer set on line 4, used in callback on line 37.
+
+Callback timing.
+  Application might not be expecting a callback at some point in its execution.
+  E.g., might expect library to invoke error callback only after error occurs.
+  E.g., line 58 in figure 1.
+
+Callbacks vs threads.
+  Might expect certain callbacks on certain threads.
+  E.g., two threads call library, library runs one thread's cb in another thread.
+    Or same cb from one thread on both threads.
+  Could lead to application memory corruption, race conditions, etc.
+
+Mechanisms to help developers: section 4.
+
+Tainted values.
+  Intuition: tainted values represent stuff that's in the sandbox, untrusted.
+    Untainted values are outside of the sandbox, trusted.
+    Cannot pass untainted values into sandbox, or use tainted values outside sandbox.
+    Need explicit checks to get rid of "taint".
+    In some cases need to also explicitly convert into "tainted" values.
+  Arithmetic and other operators work on tainted values but keep taint.
+  Can't perform operations on tainted values that have side-effects.
+    E.g., if (tainted_bool || foo()) will invoke foo() only if tainted_bool is false.
+  In principle struct traversal also tracks taint.
+    struct foo { int x; int y; }
+    Can take a tainted<struct foo> and access field x.
+    Result is a tainted<int>.
+    Seems like struct support is weak in RLbox, but "should" work this way.
+  Tainted pointers represent pointers into sandbox memory.
+    In contrast, regular pointers are pointers into application memory.
+    Need to explicitly allocate memory in sandbox, get back tainted<T*>.
+    Need to explicitly copy memory; cannot just convert between T* and tainted<T*>.
+  Unwrapping with a validator.
+    Application-specific, developer must think about what's needed.
+    E.g., check the status from JPEG header decoder is one of the expected values.
+    tainted<int>.verify([](int val) {
+      if (val == ...) { return val; } else { panic; }
+    });
+
+Freezing.
+  Double-fetch bug: consistency between values / over time.
+  Mechanism: declare some data to be a "freezable" unit.  Probably a struct.
+  Not allowed to read from a freezable type unless it's frozen.
+  Freezing it copies a snapshot of the whole thing out of sandbox.
+  Now there's no possibility for double-fetch race conditions.
+
+Callbacks.
+  Technicality: WebAssembly doesn't allow importing additional functions at runtime.
+    Solution: trampoline function.
+    Single function imported from renderer into sandbox.
+    Trampoline takes as argument the specific callback you want to call, and args ptr.
+    Trampoline checks if callback is a valid one, and if so, calls it.
+  Security issue: callbacks could be misused by sandbox in some way.
+  Restrictions on callback function types
+    Enforced by register_callback()
+  Must take tainted arguments.
+    (also takes an argument to the sandbox object)
+  Must return tainted result (or void).
+  Callback object lifetime: scoped or explicit unregister.
+
+Pointers to application data outside of the sandbox.
+  E.g., callback may need to access some data in a struct.
+    Typical library interface would have the library pass the pointer to callback.
+    Cannot trust library to do this correctly if compromised.
+  Solution 1: embed pointer in function closure, so no pointer passing required.
+  Solution 2: register pointer with RLbox, and validate before using.
+    RLbox tracks valid app pointers, much like valid callbacks.
+    Can explicitly unregister a pointer, much like unregistering callback.
+
+Paper pays quite a bit of attention to the workflow for sandboxing a library.
+  Section 5.
+  Null sandbox.
+  Introduce tainting.
+  Sanitize pointers incrementally.
+  Introduce validation.
+  Switch to real sandbox.
+
+Demo.
+  git clone https://github.com/plsyssec/rlbox_sandboxing_api/ rlbox
+  cd rlbox/examples/hello-world-noop
+  make
+  ./hello
+  change mylib.c: add() adds an extra 5, call_cb passes NULL
+  make
+  ./hello
+  [[ detects that add didn't work ]]
+  [[ crashes -- insufficient validation for string ]]
+
+How well does RLbox address its goals?
+  Seems relatively easy to use: Figure 3.
+  1-3 person-days to sandbox a library.
+  Few hundred LOCs increase: not that much code.
+  Sounds like validators are the hardest part: must understand app, library.
+
+How is the performance after sandboxing libraries with RLbox?
+  Firefox performance: Figure 4.
+  Modest CPU overheads (3% for SFI/NaCl, 13% for process sandboxing).
+    Sandboxing overhead seems relatively small compared to overall costs.
+    They have some optimizations for mitigating context-switch overhead.
+    Pin sandbox process on antoher core, spin-wait for requests.
+  Memory overheads modest as well.
+    Sandbox sharing seems to work OK.
+    Sandboxes aren't long-lived, so memory costs are not long-term.
+
+Raw overhead seems more significant.
+  27% throughput reduction for Apache mod_markdown (NaCl).
+  27% throughput reduction for bcrypt in Node.js (NaCl).
+  85% overhead for libGraphite (wasm).
+  What matters seems to be boundary crossings and CPU-intensive code.
+    Both are likely to be optimized as wasm tooling matures.
+    Later paper on reducing boundary crossing overhead, from same group.
+    [[ Ref: https://cseweb.ucsd.edu/~dstefan/pubs/kolosick:2022:isolation.pdf ]]
+
+RLbox used in production in Firefox, seems to be a well-developed tool.
+  [[ Ref: https://github.com/plsyssec/rlbox_sandboxing_api/ ]]
+  [[ Ref: https://plsyssec.github.io/rlbox_sandboxing_api/sphinx/ ]]
+
+Original code for paper differs somewhat from production version.
+  [[ Ref: https://github.com/shravanrn/LibrarySandboxing ]]
+  [[ Ref: https://github.com/shravanrn/rlbox_api ]]
+  Seems like struct freezing was dropped in production.
+
+To what extent do similar interface problems arise if we're talking over the network?
+  E.g., RPCs between OKWS components, Google services, etc.
+  Probably still need to be careful about decoding response.
+  Probably still would be useful to know what data to validate.
+    E.g., status code or response from RPC should be a valid one.
+    Tainting would be useful to identify places for validation.
+  Some challenges in RLbox arise from repeated interactions and implicit invariants.
+    E.g., know that next callback should advance some pointer, etc.
+    E.g., passing pointers or offsets to data that was sent earlier.
+    Less of a problem if RPC is just one round-trip.
+    But could have a similar problem if doing streaming RPCs, repeated calls, etc.
+
+Another context where these problems arise: enclaves / untrusted OS kernels.
+  Separate line of work on putting the kernel in a separate isolation domain.
+  Kernel might have bugs, but even if adversary takes over kernel, cannot compromise app.
+  Isolation is relatively well defined, and perhaps doable.
+  Challenge: how to use the syscall interface from a compromised OS?
+    Many of the same problems that RLbox is facing, at an even larger scale.
+    E.g., we invoked open("foo.txt") and got back file descriptor 5; is that OK?
+      Should check that no other file we had open is using fd 5.
+      Otherwise might get confused.
+    E.g., we called mmap() to allocate memory and got some address back; is it OK?
+      Should make sure this isn't the address of some existing data structure.
+      Otherwise we might be tricked into writing over some existing memory!
+    Perhaps suggests this isn't a great interface for a security boundary.
+  [[ Ref: https://hovav.net/ucsd/dist/iago.pdf ]]
+  [[ Ref: https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos2011-drawbridge.pdf ]]
+
+Practical analogue of rlbox: Linux user pointer checking.
+  [[ Ref: https://www.usenix.org/legacy/publications/library/proceedings/sec04/tech/full_papers/johnson/johnson_html/cquk.html ]]
+  [[ Ref: https://sparse.docs.kernel.org/en/latest/ ]]
+
+Summary.
+  Interesting case study of privilege separation / sandboxing in browser.
+  Tricky to safely interact between isolated components.
+  Particularly hard to retrofit existing interfaces into security boundaries.
+  RLbox tries to extract common patterns.
+  Key idea: data flow across isolation boundary; compile-time assistance.
+    Need validation before starting to use data that came across boundary.
