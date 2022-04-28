@@ -1,0 +1,1 @@
+How do the OS security implementation of Android differs from that of iOS? It's clear that they have very different assumptions and models (in terms of the apps that they allow, the flexibility they give to developer, etc.) Does this make Android inherently less secure?

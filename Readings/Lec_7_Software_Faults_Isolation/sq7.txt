@@ -1,0 +1,1 @@
+How has WebAssembly developed after this paper and did those changes match what the original researchers they would be? For example, is WebAssembly as universally supported now as they thought it would be? What are some drawbacks (if any) that we now realize about WebAssembly that they didn't previously?

@@ -1,0 +1,5 @@
+When it comes to the overall security of the Internet, how do you envision it will be like 20-30 years from 
+now? Currently it seems like our strategy has been to retroactively add security measures onto inherently
+insecure protocols or use additional layering in the network stack to allow for encryption/ authentication.
+However, would it be possible for us to take a much more strict approach and work towards replacing certain
+parts of the Internet entirely and deprecating certain old protocols for more secure ones? 

@@ -1,0 +1,3 @@
+Why is it that we have some CAs which are able to provide certificates for any domain on the Internet? Why isn't it more
+like with IP addresses where the address space which an IP registry can assign and deal with is divided up into exclusive
+sets?

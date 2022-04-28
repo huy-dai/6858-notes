@@ -1,0 +1,1 @@
+After reading the paper, I'm still a little bit confused about the security of Firecracker, since they did not provide much or any tests regarding security in the paper (only performance). Is it secure mainly because Firecrackers draws / shares codebase from well-designed container platforms like KVM and QEMU? 

@@ -1,0 +1,1 @@
+Has there been any major exploits found in the past with the Tor source code? If so what areas of the Tor service did it affect?

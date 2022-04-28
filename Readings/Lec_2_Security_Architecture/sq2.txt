@@ -1,0 +1,3 @@
+Who is this document intended for? Is it businesses who are looking to utilize Google services and are concerned about their security? Is it for security leaders who are curious about what Google does to protect their data?
+
+Also, are we worried about attackers potentially using this document to inform them how to attack Google services? (e.g. Does these information pose a security risk?)

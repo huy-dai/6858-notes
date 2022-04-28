@@ -1,0 +1,2 @@
+How variable are security across different web browsers? For instance, most of our readings are focused on the web behavior on Firefox browser,
+but does other popular browsers have these same kind of security mitigation to avoid web attacks or are they much weaker? 

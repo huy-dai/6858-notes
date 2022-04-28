@@ -1,0 +1,14 @@
+While issues relating to TCP sequence number and address-based authentication are no longer an issue 
+(as we've since moved on to better form of authentications, including Kerberos and public-private key
+authentications), there are still certain issues mention in the paper that still exists today. Those includes:
+
+- Routing: Protocols like BGP are still notorious for being insecure and also susceptible to false route claims. 
+We can see this in the global outage for Youtube a few years back due to bad routing info from Pakistant. 
+In addition, techniques like ARP poisoning and IP spoofing for Man-in-the-Middle attacks are still viable today.
+- DNS: Authentication with DNS are not very widely adopted, and it's still possible to perform
+DNS spoofing attacks. In addition, DNS are still susceptible to DOS attacks (see Facebook outage in 2021)
+- DOS: ICMP are still most often used for DDos attacks.
+- Authentication: While authentication servers have become much more reliable, there are still problems
+with proper key management and distribution.
+- Protocols with bad security: There are many protocols with bad security that run rampage on the Internet.
+HTTP, FTP, and other authentication-less protocols are still being used quite widely.

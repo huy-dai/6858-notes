@@ -1,0 +1,2 @@
+Whenever a new version of a security protocol like SSL comes out, what is the actual process for it to be implemented / rolled out to devices? Is the responsibility
+on the companies that code web browsers or maintain web servers, or is it someone else? How long does these processes usually take to get almost ubiquitious adoption? (say 99%)

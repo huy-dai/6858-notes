@@ -1,0 +1,1 @@
+To help qualify the security design in iOS designs, how does these set of security features in iOS differ from that in Windows (what makes them better)? What are some security things Apple able to do with their OS that isn't simply feasible or not implementable in Windows?

@@ -1,0 +1,11 @@
+When running a machine as an onion-router Tor node, you are potentially exposing yourself to a DDoS attack, especially if you
+don't carefully set the policies on the amount of bandwidth that the Tor service can consume along with placing the proper precautions
+of specifying which types of traffic you want to route. In addition, with a global adversary can still be sniffed at the exit node, which 
+in some scenarios can put you in legal trouble if it is determined that you are helping route illegal traffic. For some Internet Service Providers 
+or servers they might even choose to blacklist IPs which are detected to be routing Tor traffic.
+
+As a client to the Tor network, you may also be potentially exposed to malware and botnet attacks, since malicious exit nodes may be able to
+malicious code or information into the packet, which you then unknowingly download
+
+However, the benefits of running an onion-router is that you are helping increase the performance of the Tor network, which yourself can 
+take advantage of, along with supporting the robustness, stability, and safety of the network (for not just you but all the other users).

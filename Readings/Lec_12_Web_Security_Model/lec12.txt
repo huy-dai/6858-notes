@@ -1,0 +1,20 @@
+A few possible threats include:
+- Man in the Middle attack: This is when an adversary is able to sniff the network traffic and expose the HTTP traffic, 
+which is unencrypted, to steal the user's cookie. This is probably the largest concern with this web service. To mitigate
+this, I would advise the web developers to switch over to HTTPS protocol instead. Additionally we can set the `Secure` attribute
+in the cookies we send to the user.
+- CSRF/ XSS attack: This is when an adversary is able to inject permanent code into the website's service and causes that 
+malicious code to run when other users pull the same part of the web page. In turn CRSF attacks would try to use the user's cookies
+to make a request on their behalf. To prevent this the developers need to make sure they are properly sanitizing all user-provided fields
+on their website, and also to do more careful handling of cookie-based secure authentication.
+- Cross-origin requests: Embedded content on the page may be able to get the user's cookie through clickjacking or exploiting weak
+same-origin policy enforcement. To avoid this issue, the web developers will need to be careful with embedded content on the page (and avoid
+reading cross-origin content), along with associating their users' cookies with a specific origin through the `Origin` attribute and 
+set certain flags like `HttpOnly`.
+- Bad cookie storage: If cookies are improperly stored and/or are not being cleared upon a session closing, this could make the user vulnerable
+to having their cookie stolen. To avoid this, developers must be very careful about how they manage their cookies in `SessionStorage` and to
+never store their cookies in `LocalStorage`.
+- Improper cookie handling: Assuming the attacker is somehow able to get the user's cookie, through exploiting any of the four attacks
+mentioned above or through some other methods not mentioned here. Regardless, We want to limit the usability of the cookie under the attacker's
+control. This can be done through setting a short expiration duration for the cookie, or even go as far as associating a cookie with a specific 
+IP.

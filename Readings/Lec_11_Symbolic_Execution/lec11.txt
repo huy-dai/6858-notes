@@ -1,0 +1,7 @@
+If EXE tried all branches, testing as a whole would run much slower, as you could potentially be traversing
+down a computationally expensive path which there's no producible input for. The same thing also occurs for
+choosing a branch at random. In those cases, even if the program exits or trigger an error, it doesn't produce
+a usable test case. Additionally, STP implements a few different heuristics to help the tool try out
+more "interesting" paths first (e.g. those that add to the code coverage). That way, you aren't wasting a lot
+of time going down a for loop or recursive calls many, many times before hopping out, and instead, are focused
+on potentially more "lucrative" paths first, increasing in the time efficiency of the tool.

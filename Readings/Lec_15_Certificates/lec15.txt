@@ -1,0 +1,6 @@
+If the user has not visited the website/domain which the adversary has a browser-acceptable certificate for prior to the MITM attack,
+then any validation using client history of key pins will be invalid, since the adversary can simply just modify the certificate that
+is sent back as part of the response to the user. However, this attack will not work with DNS key pinning because protocols like DANE
+requires that the DNS record containing pinned information must be signed with DNSSEC. As long as the data stored on the DNS server is 
+correct in the first place, DNSSEC signing prevents the certificate response from being falsified or replaced by an attack sitting in the
+middle of the connection.

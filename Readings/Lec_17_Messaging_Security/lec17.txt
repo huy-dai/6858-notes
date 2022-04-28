@@ -1,0 +1,10 @@
+In general, email has very similar issues with security that text messaging faces. In theory most email systems are able to guarantee features in trust
+establishment (being sure the person you are sending an email to is the intended party) - though this does still fall to attacks like email spoofing - it
+is not so great in terms of conversation security and especially transport privacy. Emails headers / metadata readily exposes the sender and recipient, which
+means the user privacy is not preserved, and often the encryption keys are maintained by the centralized service hosting the emails rather than being end-to-end 
+encryption.
+
+Many of the techniques described for securing messaging systems can also be readily applied to improve email security, such as using better conversation security schemes
+and providing greater + more user-friendly support for multiple devices. However, a challenge with emails is that with emails you also need to be able to support the various
+email protocols and server designs that exists across different email domains (e.g. @mit.edu might do emails very different from @outlook.com). This will greatly
+hinder adoption and require strict backwards compatibility.

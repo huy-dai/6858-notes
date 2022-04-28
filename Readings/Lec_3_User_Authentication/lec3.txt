@@ -1,0 +1,3 @@
+I would consider the 2FA scheme using a USB dongle to more secure than an SMS message, as with SMS messages the users are still vulnerable to phishing and Man-in-the-middle attacks. The USB dongle, on the other hand, offers more security since all the key management and generation are done offline with the USB and the response is then sent to the server.
+
+In terms of user convience, I would say the SMS messages are easier to work with, since most people carry their phone with them nowadays and it's a lot easier to lose or forget to bring your 2FA USB dongle.

@@ -1,0 +1,17 @@
+1. Physical attacks where a malicious party attempts to get on-premise of a data center 
+2. Deployment of malicious hardware or device through hardware vendors
+3. Unvalidated modification of firmware (such as those done by rootkits) and side-channel attacks
+4. Unauthorized impersonation of a Google service, breaking out of virtualization services
+5. Exploitation of high-level permissions to access unauthorized data or modify services
+6. Malicious services that want to intercept/ sniff data between real services
+7. Impersonation of users to steal information
+8. Exploitation of weak or improper storage and management of encryption keys
+9. Recovering deleted data to get access to secure information
+10. Exploitation of bad certificates and improper cryptographic implementations
+11. Denial-of-service attacks
+12. Phishing attacks targeted at consumers 
+13. XSS vulnerabilities and utilizing fuzzing, static analysis tools, and web security scanners to break insecure software
+14. Data breaches and impersonation of employees
+15. Insider threat
+16. Exploiting insufficient or slow response / detection rates to attacks to allow for further exploitation
+17. Exploiting Google Cloud services through DoS attacks, VM escape, network sniffing, MITM attack, kernel exploits, etc.

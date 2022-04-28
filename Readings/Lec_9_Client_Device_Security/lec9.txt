@@ -1,0 +1,21 @@
+Assuming that Ben uses some note-taking program to store his confidential notes:
+
+1.  Idea: An attacker can physically steal the device
+    Prevention: iOS implements per-file encryption key which encrypts every file that is stored in flash memory, 
+        thus the attacker cannot read data off the drive directly. In addition, they cannot expose the key that is 
+        used to encrypt the file, since that per-file key is itself wrapped with the UID key which is securely stored
+        and managed by the Secure Enclave. Thus the attacker cannot expose the notes content.
+    Prevention: If Ben catches wind that his device is stolen, he can initiate a quick wipe which would erase the Effaceable Key 
+        which makes it cryptographically impossible to decrypt the rest of the files on the system
+2. Idea: Attacker can try to brute-force log in into device
+    Prevention: The FaceID and Touch ID authentication features are very difficult to bypass, and there is a very low chance
+        of finding someone else in the population that would register the same facial or fingerprint signatures as that person.
+        Thus it becomes very difficult for the attacker to log into the device.
+3. Idea: Attacker may use some form of malicious firmware injection or supply-chain attack of software updates to inject code 
+    that will expose the notes
+    Prevention: iOS uses a trust-chain model to validate the signature of every firmware and software it loads, and it also has
+        special measures to prevent against downgrading attacks or downloading of untrusted updates.
+4. Idea: Attacker may attempt to expose the notes info through corrupting another app on the device (perhaps that they control)
+    Prevention: Each iOS app is sandboxed from each other, memory access is carefully managed, ASLR and NX bit is implemented to
+        help prevent exploitation of buggy code, permissions are carefully given to app as to minimize the surface of apps 
+        for privilege escalation. Thus it is difficult for even a malicious app to be able expose the content of another app.

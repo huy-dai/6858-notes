@@ -1,0 +1,1 @@
+Are there widely-adopted symbolic execution tools for more high-level languages like Python or Java? How in some ways would it harder or easier to create symbolic execution tool for those languages (compared to C)?

@@ -1,0 +1,1 @@
+In this case an exception will be raised. This is because the allocated space is a power of 2 (e.g. 2^8) so no benign padding is added. Additionally, this pointer would then be considered out-of-bounds because it reference a byte after the allocated space, and is caught by the baggy bounds checks because 1 < slot_size/2.

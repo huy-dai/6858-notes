@@ -1,0 +1,1 @@
+Is the 20-byte auth token a secure enough form of authentication? From the paper, it's unclear to me how often the tokens are generated or if they are replaced after a period of time. Also does OKWS perform encryption for inter-service / servers transmission?

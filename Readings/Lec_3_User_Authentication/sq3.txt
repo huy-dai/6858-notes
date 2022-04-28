@@ -1,0 +1,15 @@
+What does Google's Security Key do differently compared to other solutions like Yubikey? Also, is 2FA through text message really that vulnerable to things phishing attacks and MITM (how concerned should we be about those attacks))?
+
+Answer:
+
+Yubikey used to have their own scheme for generating 2FA codes that
+wasn't U2F-compatible, and didn't involve any challenge/response
+protocol.  Nowadays Yubikey manufactures U2F-compatible security keys,
+for the most part.
+
+There are certainly serious attacks against 2FA codes, both through
+SMS hijacking and through phishing:
+
+    https://krebsonsecurity.com/2021/03/can-we-stop-pretending-sms-is-secure-now/
+    https://www.vice.com/en/article/y3vz5k/booming-underground-market-bots-2fa-otp-paypal-amazon-bank-apple-venmo
+

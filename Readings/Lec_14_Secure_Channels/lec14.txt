@@ -1,0 +1,9 @@
+1. The reason why SSL 3.0 accepts SSL 2.0 connection is to provide backwards-compatibility in the short term. There is a movement to eventually be able
+to move most, if not all, clients to the new SSL 3.0 standard. However, it should be noted that SSL 3.0 embeds some fixed redundance in the form of RSA PKCS padding bytes
+to indicate to others that they support SSL 3.0. This method does help prevent against an attacker forcing both sides which runs SSL 3.0 to downgrade to 2.0. However, there is still
+a potential security issue with servers that supports both SSL 3.0 and 2.0, in those case those two protocols should not be used interchangably.
+
+That said, the best method is still to be able to move to SSL 3.0 only as soon as we can.
+
+2. From what I understand, the fix should occur at step 2' and 4', when either the client or the server receives a `finished` message. In this case, the check would detect that a `change cipher spec`
+has not be received prior to this message, and so both would not accept the `finish` message when they get it from the adversary.

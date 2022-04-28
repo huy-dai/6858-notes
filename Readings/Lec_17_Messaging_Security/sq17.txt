@@ -1,0 +1,2 @@
+As of today, what are some notable messaging systems which seem to guarantee a 
+higher level of security compared to others? Does Signal count as one such example?
