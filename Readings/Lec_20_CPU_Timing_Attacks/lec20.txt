@@ -1,0 +1,4 @@
+To be honest, I'm having a really hard time following what the exploit code is doing. I'm not sure what the value of mix_i will be.
+
+From what I can understand it seems like if we get a cache hit with mix_i on the first call to readMemoryByte, then it would mean that we've found
+our secret string. Thus mix_i should represent the first character in the string, "T", which is 84?

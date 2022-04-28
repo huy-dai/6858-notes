@@ -1,0 +1,3 @@
+What are ways that we can prevent vulnerabilities like Meltdown and Spectre from occurring in the future? For example in software development 
+there are practices like testing + doing code review that can help mitigate code bugs. Are there similar practices or framework for hardware
+designs?
