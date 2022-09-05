@@ -1,0 +1,3 @@
+In the paper it mentions that exposure of meeting info through the metadata / traffic analysis is not a security
+priority for the Zoom team. Why is it so? Wouldn't it allow for widespread surveillance where outsiders can 
+attempt to follow the meeting record of a person and also the IP addresses of people they talk with?

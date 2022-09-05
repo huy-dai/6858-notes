@@ -1,0 +1,4 @@
+According to section 3.7.6 in the paper, a participant who left the call will be able to continue
+decrypting content from the call up to 15 seconds (or even a few minutes) after they left. This is 
+because there's a cooldown for when a rekey occurs among the participants after a change in the 
+participant list, but eventually their ability to decrypt the call's traffic will expire.

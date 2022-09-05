@@ -16,7 +16,6 @@ In this example, if S_1 and S_2 is controlled then the entire network privacy gu
 
 It should be noted that with more users the amount of different traffic that each onion router see will increase, but unless you are able to see the network at a global adversary level most of this information won't mean anything to you.
 
-
 ## Drawbacks
 
 - Global adversary can monitor exit node traffic and use it to perform traffic correlation (be able to detect that A is most likely talking to B). 
@@ -24,4 +23,3 @@ It should be noted that with more users the amount of different traffic that eac
   - This can be done with like cover traffic, randomly increasing delay, increasing overhead, etc. 
   - Research is still ongoing on these areas + quantifying which will work best to evade detection, but this is an ongoing problem for now.
 
-## 

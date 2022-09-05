@@ -1,4 +1,4 @@
-"# Symbolic Execution
+# Symbolic Execution
 
 One of the topics we haven't talked about much so far is finding vulnerabilities in software. We consider `exploits \in bugs`. The CVE database publishes known vulnerabilities with categorization. There are programs like "bug bounty" to look for potential exploits, along with established procedures like testing, fuzzing, and symbolic execution that allow us to find bugs in softwares (which can mitigate exploits upstream).
 
